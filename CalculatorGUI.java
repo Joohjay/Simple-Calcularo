@@ -8,15 +8,17 @@ public class CalculatorGUI extends JFrame implements ActionListener {
     private JTextField display;          // Text field to display input and result
     private StringBuilder inputBuffer;  // To store the current input
     private ArrayList<String> history;  // To store calculation history
+    private double memory;              // Memory storage for the calculator
 
     public CalculatorGUI() {
-        // Initialize the input buffer and history
+        // Initialize the input buffer, history, and memory
         inputBuffer = new StringBuilder();
         history = new ArrayList<>();
+        memory = 0;
 
         // Set up the frame
-        setTitle("Advanced Calculator");
-        setSize(400, 600);
+        setTitle("Scientific Calculator");
+        setSize(500, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -29,15 +31,17 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 
         // Create the panel for buttons
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(5, 4, 10, 10)); // 5x4 grid with spacing
+        buttonPanel.setLayout(new GridLayout(6, 4, 10, 10)); // 6x4 grid with spacing
 
-        // Add buttons for numbers and operations
+        // Add buttons for numbers, operations, memory, constants, and parentheses
         String[] buttons = {
                 "7", "8", "9", "/", 
                 "4", "5", "6", "*", 
                 "1", "2", "3", "-", 
                 "0", "C", "=", "+",
-                "sqrt", "log", "sin", "cos"
+                "(", ")", "π", "e",
+                "sqrt", "log", "sin", "cos",
+                "M+", "M-", "MR", "MC"
         };
         for (String text : buttons) {
             JButton button = new JButton(text);
@@ -114,6 +118,42 @@ public class CalculatorGUI extends JFrame implements ActionListener {
                 } catch (Exception ex) {
                     display.setText("Error");
                 }
+                break;
+            case "π": // Pi constant
+                inputBuffer.append(Math.PI);
+                display.setText(inputBuffer.toString());
+                break;
+            case "e": // Euler's constant
+                inputBuffer.append(Math.E);
+                display.setText(inputBuffer.toString());
+                break;
+            case "(": // Open parenthesis
+            case ")": // Close parenthesis
+                inputBuffer.append(command);
+                display.setText(inputBuffer.toString());
+                break;
+            case "M+": // Add to memory
+                try {
+                    memory += Double.parseDouble(display.getText());
+                } catch (Exception ex) {
+                    display.setText("Error");
+                }
+                break;
+            case "M-": // Subtract from memory
+                try {
+                    memory -= Double.parseDouble(display.getText());
+                } catch (Exception ex) {
+                    display.setText("Error");
+                }
+                break;
+            case "MR": // Recall memory
+                display.setText(String.valueOf(memory));
+                inputBuffer.setLength(0);
+                inputBuffer.append(memory);
+                break;
+            case "MC": // Clear memory
+                memory = 0;
+                display.setText("");
                 break;
             default: // Append numbers and operators to the buffer
                 inputBuffer.append(command);
