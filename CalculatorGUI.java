@@ -3,22 +3,26 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.text.DecimalFormat;
 
 public class CalculatorGUI extends JFrame implements ActionListener {
     private JTextField display;          // Text field to display input and result
     private StringBuilder inputBuffer;  // To store the current input
     private ArrayList<String> history;  // To store calculation history
     private double memory;              // Memory storage for the calculator
+    private JComboBox<String> decimalSelector; // Dropdown for selecting decimal places
+    private int decimalPlaces;          // Stores the selected number of decimal places
 
     public CalculatorGUI() {
-        // Initialize the input buffer, history, and memory
+        // Initialize the input buffer, history, memory, and default decimal places
         inputBuffer = new StringBuilder();
         history = new ArrayList<>();
         memory = 0;
+        decimalPlaces = 2; // Default to 2 decimal places
 
         // Set up the frame
         setTitle("Scientific Calculator");
-        setSize(500, 700);
+        setSize(500, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -28,6 +32,25 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         display.setHorizontalAlignment(SwingConstants.RIGHT);
         display.setEditable(false);   // Make the display read-only
         add(display, BorderLayout.NORTH);
+
+        // Create a panel for the decimal place selector
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(display, BorderLayout.CENTER);
+
+        // Create the dropdown for decimal places
+        String[] decimalOptions = {"0", "1", "2", "3", "4", "5"};
+        decimalSelector = new JComboBox<>(decimalOptions);
+        decimalSelector.setSelectedIndex(2); // Default to 2 decimal places
+        decimalSelector.addActionListener(e -> {
+            decimalPlaces = decimalSelector.getSelectedIndex();
+        });
+        JPanel selectorPanel = new JPanel();
+        selectorPanel.add(new JLabel("Precision:"));
+        selectorPanel.add(decimalSelector);
+        topPanel.add(selectorPanel, BorderLayout.SOUTH);
+
+        // Add the top panel to the frame
+        add(topPanel, BorderLayout.NORTH);
 
         // Create the panel for buttons
         JPanel buttonPanel = new JPanel();
@@ -69,9 +92,10 @@ public class CalculatorGUI extends JFrame implements ActionListener {
             case "=": // Evaluate the expression
                 try {
                     double result = evaluateExpression(inputBuffer.toString());
-                    String calculation = inputBuffer.toString() + " = " + result;
+                    String formattedResult = formatResult(result);
+                    String calculation = inputBuffer.toString() + " = " + formattedResult;
                     history.add(calculation); // Add to history
-                    display.setText(String.valueOf(result));
+                    display.setText(formattedResult);
                     inputBuffer.setLength(0); // Clear the buffer for new input
                     inputBuffer.append(result); // Allow further calculations
                 } catch (Exception ex) {
@@ -82,7 +106,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
             case "sqrt": // Square root
                 try {
                     double result = Math.sqrt(Double.parseDouble(inputBuffer.toString()));
-                    display.setText(String.valueOf(result));
+                    display.setText(formatResult(result));
                     inputBuffer.setLength(0);
                     inputBuffer.append(result);
                 } catch (Exception ex) {
@@ -92,7 +116,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
             case "log": // Logarithm
                 try {
                     double result = Math.log10(Double.parseDouble(inputBuffer.toString()));
-                    display.setText(String.valueOf(result));
+                    display.setText(formatResult(result));
                     inputBuffer.setLength(0);
                     inputBuffer.append(result);
                 } catch (Exception ex) {
@@ -102,7 +126,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
             case "sin": // Sine
                 try {
                     double result = Math.sin(Math.toRadians(Double.parseDouble(inputBuffer.toString())));
-                    display.setText(String.valueOf(result));
+                    display.setText(formatResult(result));
                     inputBuffer.setLength(0);
                     inputBuffer.append(result);
                 } catch (Exception ex) {
@@ -112,7 +136,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
             case "cos": // Cosine
                 try {
                     double result = Math.cos(Math.toRadians(Double.parseDouble(inputBuffer.toString())));
-                    display.setText(String.valueOf(result));
+                    display.setText(formatResult(result));
                     inputBuffer.setLength(0);
                     inputBuffer.append(result);
                 } catch (Exception ex) {
@@ -147,7 +171,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
                 }
                 break;
             case "MR": // Recall memory
-                display.setText(String.valueOf(memory));
+                display.setText(formatResult(memory));
                 inputBuffer.setLength(0);
                 inputBuffer.append(memory);
                 break;
@@ -172,6 +196,16 @@ public class CalculatorGUI extends JFrame implements ActionListener {
                         .eval(expression))
                         .doubleValue()
                 : 0.0;
+    }
+
+    // Format result to the selected number of decimal places
+    private String formatResult(double result) {
+        StringBuilder format = new StringBuilder("#.");
+        for (int i = 0; i < decimalPlaces; i++) {
+            format.append("#");
+        }
+        DecimalFormat df = new DecimalFormat(format.toString());
+        return df.format(result);
     }
 
     public static void main(String[] args) {
