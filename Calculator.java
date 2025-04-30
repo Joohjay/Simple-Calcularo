@@ -1,3 +1,6 @@
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -7,83 +10,35 @@ public class Calculator {
         ArrayList<String> history = new ArrayList<>(); // To store calculation history
         boolean continueCalculating = true;
 
-        System.out.println("Welcome to the Calculator!");
+        System.out.println("Welcome to the Advanced Calculator!");
 
         while (continueCalculating) {
             // Display menu
             System.out.println("\nChoose a mode:");
-            System.out.println("1. Basic Operations (+, -, *, /, %, ^)");
+            System.out.println("1. Simple Expression Evaluation (e.g., 2 + 3 * 5)");
             System.out.println("2. Advanced Functions (√, sin, cos, tan, log, ln)");
             System.out.println("3. View Calculation History");
             System.out.println("4. Exit");
             int mode = input.nextInt();
+            input.nextLine(); // Consume newline
 
             if (mode == 1) {
-                double num1 = 0, num2 = 0;
-                char operator;
-                boolean validInput = false;
+                // Handle Complex Expression Evaluation
+                System.out.println("Enter a mathematical expression (e.g., 2 + 3 * 5):");
+                String expression = input.nextLine();
 
-                // Input validation for the first number
-                while (!validInput) {
-                    System.out.println("Enter first number: ");
-                    if (input.hasNextDouble()) {
-                        num1 = input.nextDouble();
-                        validInput = true;
-                    } else {
-                        System.out.println("Invalid input. Please enter a valid number.");
-                        input.next(); // Clear invalid input
-                    }
+                // Evaluate the expression
+                ScriptEngineManager manager = new ScriptEngineManager();
+                ScriptEngine engine = manager.getEngineByName("JavaScript");
+
+                try {
+                    Object result = engine.eval(expression); // Evaluate the expression
+                    String calculation = expression + " = " + result;
+                    history.add(calculation); // Add to history
+                    System.out.println("Result: " + result);
+                } catch (ScriptException e) {
+                    System.out.println("Invalid expression. Please try again.");
                 }
-
-                validInput = false;
-
-                // Input validation for the operator
-                while (!validInput) {
-                    System.out.println("Enter operator (+, -, *, /, %, ^):");
-                    operator = input.next().charAt(0);
-                    if (operator == '+' || operator == '-' || operator == '*' || operator == '/' ||
-                        operator == '%' || operator == '^') {
-                        validInput = true;
-                    } else {
-                        System.out.println("Invalid operator. Please enter one of +, -, *, /, %, ^.");
-                    }
-                }
-
-                validInput = false;
-
-                // Input validation for the second number
-                while (!validInput) {
-                    System.out.println("Enter second number: ");
-                    if (input.hasNextDouble()) {
-                        num2 = input.nextDouble();
-                        if (operator == '/' && num2 == 0) {
-                            System.out.println("Error: Cannot divide by zero. Please enter a non-zero number.");
-                        } else {
-                            validInput = true;
-                        }
-                    } else {
-                        System.out.println("Invalid input. Please enter a valid number.");
-                        input.next(); // Clear invalid input
-                    }
-                }
-
-                // Perform the calculation
-                double result = 0;
-
-                switch (operator) {
-                    case '+': result = num1 + num2; break;
-                    case '-': result = num1 - num2; break;
-                    case '*': result = num1 * num2; break;
-                    case '/': result = num1 / num2; break;
-                    case '%': result = num1 % num2; break;
-                    case '^': result = Math.pow(num1, num2); break;
-                    default:
-                        System.out.println("Invalid operator");
-                        return;
-                }
-                String calculation = num1 + " " + operator + " " + num2 + " = " + result;
-                history.add(calculation); // Add to history
-                System.out.println("Result: " + result);
 
             } else if (mode == 2) {
                 // Handle Advanced Functions
