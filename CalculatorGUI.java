@@ -12,6 +12,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
     private double memory;              // Memory storage for the calculator
     private JComboBox<String> decimalSelector; // Dropdown for selecting decimal places
     private int decimalPlaces;          // Stores the selected number of decimal places
+    private boolean isDarkMode = false; // Tracks the current theme (false = light, true = dark)
 
     public CalculatorGUI() {
         // Initialize the input buffer, history, memory, and default decimal places
@@ -22,7 +23,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
 
         // Set up the frame
         setTitle("Scientific Calculator");
-        setSize(500, 750);
+        setSize(500, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -33,7 +34,7 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         display.setEditable(false);   // Make the display read-only
         add(display, BorderLayout.NORTH);
 
-        // Create a panel for the decimal place selector
+        // Create a panel for the theme toggle and decimal place selector
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(display, BorderLayout.CENTER);
 
@@ -41,12 +42,17 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         String[] decimalOptions = {"0", "1", "2", "3", "4", "5"};
         decimalSelector = new JComboBox<>(decimalOptions);
         decimalSelector.setSelectedIndex(2); // Default to 2 decimal places
-        decimalSelector.addActionListener(e -> {
-            decimalPlaces = decimalSelector.getSelectedIndex();
-        });
+        decimalSelector.addActionListener(e -> decimalPlaces = decimalSelector.getSelectedIndex());
+
+        // Create theme toggle button
+        JButton themeToggle = new JButton("Toggle Theme");
+        themeToggle.addActionListener(e -> toggleTheme());
+
+        // Add theme selector and decimal selector to the panel
         JPanel selectorPanel = new JPanel();
         selectorPanel.add(new JLabel("Precision:"));
         selectorPanel.add(decimalSelector);
+        selectorPanel.add(themeToggle);
         topPanel.add(selectorPanel, BorderLayout.SOUTH);
 
         // Add the top panel to the frame
@@ -66,15 +72,42 @@ public class CalculatorGUI extends JFrame implements ActionListener {
                 "sqrt", "log", "sin", "cos",
                 "M+", "M-", "MR", "MC"
         };
+
+        // Assign colors to different types of buttons
         for (String text : buttons) {
             JButton button = new JButton(text);
             button.setFont(new Font("Arial", Font.BOLD, 20));
             button.addActionListener(this); // Add action listener
+
+            // Set colors based on button type
+            if ("0123456789".contains(text)) { // Numbers
+                button.setBackground(Color.WHITE);
+                button.setForeground(Color.BLACK);
+            } else if ("/*-+=()".contains(text)) { // Operations
+                button.setBackground(new Color(173, 216, 230)); // Light blue
+                button.setForeground(Color.BLACK);
+            } else if ("πe".contains(text)) { // Constants
+                button.setBackground(new Color(255, 228, 196)); // Light brown
+                button.setForeground(Color.BLACK);
+            } else if ("sqrtlogsinccos".contains(text)) { // Functions
+                button.setBackground(new Color(240, 230, 140)); // Light yellow
+                button.setForeground(Color.BLACK);
+            } else if ("M+M-MRMC".contains(text)) { // Memory functions
+                button.setBackground(new Color(255, 182, 193)); // Light pink
+                button.setForeground(Color.BLACK);
+            } else { // Default for other buttons (e.g., C, =)
+                button.setBackground(new Color(255, 160, 122)); // Light coral
+                button.setForeground(Color.BLACK);
+            }
+
             buttonPanel.add(button);
         }
 
         // Add the button panel to the frame
         add(buttonPanel, BorderLayout.CENTER);
+
+        // Apply the light theme by default
+        applyLightTheme();
 
         // Set the frame to visible
         setVisible(true);
@@ -206,6 +239,30 @@ public class CalculatorGUI extends JFrame implements ActionListener {
         }
         DecimalFormat df = new DecimalFormat(format.toString());
         return df.format(result);
+    }
+
+    // Toggle between light and dark themes
+    private void toggleTheme() {
+        if (isDarkMode) {
+            applyLightTheme();
+        } else {
+            applyDarkTheme();
+        }
+        isDarkMode = !isDarkMode;
+    }
+
+    // Apply the light theme to the calculator
+    private void applyLightTheme() {
+        getContentPane().setBackground(Color.WHITE);
+        display.setBackground(Color.WHITE);
+        display.setForeground(Color.BLACK);
+    }
+
+    // Apply the dark theme to the calculator
+    private void applyDarkTheme() {
+        getContentPane().setBackground(Color.DARK_GRAY);
+        display.setBackground(Color.DARK_GRAY);
+        display.setForeground(Color.WHITE);
     }
 
     public static void main(String[] args) {
